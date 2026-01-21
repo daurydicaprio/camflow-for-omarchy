@@ -1,57 +1,62 @@
-# CamFlow for Omarchy & Hyprland
+# 🎥 CamFlow for Omarchy & Hyprland
 
-A professional virtual camera bridge designed to make your Google Pixel 8 Pro (or any Android/Capture device) the primary webcam on Omarchy Linux. Optimized for zero latency and high-quality video production.
+A professional virtual camera bridge designed to make your **Google Pixel 8 Pro** (or any Android/Capture device) the primary webcam on Omarchy Linux. Optimized for zero latency and high-quality video production.
 
 Created by **Daury DiCaprio** (daurydicaprio.com) | Official Omarchy Website: omarchy.org
 
 ---
 
-### 📋 How to Use
+### 💡 Why I Created CamFlow?
 
-#### **Step 1: Connect Your Device**
-Connect your **Pixel 8 Pro** via USB and select **"Webcam Mode"** on the phone's notification settings.
+As a content creator and perfectionist, I realized that most minimalist recording tools on Linux only detect the internal laptop webcam (/dev/video0) by default. Even if you connect a high-end **Pixel 8 Pro**, many apps ignore it.
 
-#### **Step 2: Start the Bridge**
-- **Shortcut:** Press **`Super + Ctrl + Alt + C`**
-- **Terminal:** Run `camflow --on`
-This will open a dedicated terminal window (Kitty) and establish the virtual link.
-
-#### **Step 3: Stop and Restore**
-- Simply press **`Ctrl + C`** in the terminal or close the window.
-- The script will automatically restore your internal webcam functionality.
+I created **CamFlow** to hijack the primary video slot and bridge the superior quality of modern mobile sensors into a virtual device that the system recognizes instantly. This ensures that my setup always uses the best lens available without manual configuration every time I start a stream or a recording.
 
 ---
 
-### ✨ Features
-- **Zero Latency Engine:** Tuned with `-fflags nobuffer` and `-preset ultrafast` for perfect audio-video sync.
-- **V0 Hijack:** Automatically claims `/dev/video0` so all apps use your pro camera by default.
-- **MJPEG Optimization:** Forces high-quality 16:9 streams, avoiding the "square video" issue.
+### 🚀 Use Cases & Utility
+
+* **Professional Video Calls:** Use the massive sensor of your Pixel for Zoom/Google Meet instead of a grainy 720p laptop camera.
+* **Content Creation:** Record tutorials or podcasts in **Omarchy** with perfect sync between your **Fifine AM8** audio and the Pixel's video.
+* **Top-Down Shoots:** Connect a capture card and use a DSLR as a webcam for high-quality desk demos.
+* **Zero Latency Streaming:** Optimized for the Zen Kernel to avoid the typical USB-webcam lag.
+
+---
+
+### 📋 How to Use
+
+1.  **Connect Device:** Set your Pixel to **Webcam Mode** via USB.
+2.  **Toggle CamFlow:** Press **Super + Ctrl + Alt + C**.
+3.  **To Exit:** Simply press **Ctrl + C** in the terminal window to restore your system.
 
 ---
 
 ### ⌨️ CLI Arguments & Performance Modes
-CamFlow offers different modes to balance quality and CPU usage:
 
-* **camflow --on** : 1280x720 @ 30 FPS (Default: Best for stability).
-* **camflow --1080p** : 1920x1080 @ 30 FPS (High Def: Crispy image).
-* **camflow --60fps** : 1280x720 @ 60 FPS (Smooth Motion).
-* **camflow --full** : 1920x1080 @ 60 FPS (Pro Mode: Maximum quality).
-* **camflow --off** : Manual Driver Reset.
-
----
-
-### 🛠 Troubleshooting (Performance)
-If you experience micro-stuttering or lag:
-1. **Match FPS:** Ensure your recording software is set to the same FPS as CamFlow.
-2. **USB Speed:** Use a USB 3.0/3.1 port and the original Google cable for maximum bandwidth.
-3. **Hardware:** If 1080p @ 60fps (`--full`) is too heavy for your CPU, stick to the default mode.
+| Command | Resolution | FPS | Description |
+| :--- | :--- | :--- | :--- |
+| **camflow --on** | 1280x720 | 30 | **Default:** Maximum stability for daily use. |
+| **camflow --1080p** | 1920x1080 | 30 | **High Def:** Crispy image for professional video. |
+| **camflow --60fps** | 1280x720 | 60 | **Smooth Motion:** Ideal for fast-paced demos. |
+| **camflow --full** | 1920x1080 | 60 | **Pro Mode:** Maximum quality (Requires more CPU). |
+| **camflow --off** | - | - | **Reset:** Manual system driver restoration. |
 
 ---
 
-### 🚀 Quick Install
-$ git clone https://github.com/daurydicaprio/camflow-for-omarchy.git
-$ cd camflow-for-omarchy
-$ chmod +x install.sh
-$ ./install.sh
+### ✨ Key Features
+
+* **V0 Hijack:** Forces your pro camera into the primary system slot.
+* **Zero Latency Engine:** Tuned with -fflags nobuffer for real-time sync.
+* **MJPEG Bridge:** Corrects the "square video" aspect ratio for a true 16:9 experience.
+
+---
+
+### 🛠 Quick Install
+
+git clone https://github.com/daurydicaprio/camflow-for-omarchy.git
+cd camflow-for-omarchy
+chmod +x install.sh
+./install.sh
+
 
 #VERyGoodforlife
