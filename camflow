@@ -1,0 +1,104 @@
+#!/bin/bash
+# ===================================================================================
+#  CamFlow for Omarchy & Hyprland
+#  Description: Professional Virtual Camera Bridge with Zero Latency optimization.
+#  Author: Daury DiCaprio (daurydicaprio.com) | #VERyGoodforlife
+# ===================================================================================
+
+# --- ANSI Colors ---
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+YELLOW='\033[1;33m'
+BOLD='\033[1m'
+NC='\033[0m'
+
+VIRTUAL_DEVICE="/dev/video0"
+DEFAULT_RES="1280x720"
+DEFAULT_FPS="30"
+
+cleanup() {
+    echo -e "\n${YELLOW}[!] Shutting down CamFlow and restoring drivers...${NC}"
+    pkill -f "ffmpeg.*$VIRTUAL_DEVICE" &>/dev/null
+    sudo modprobe -r v4l2loopback uvcvideo &>/dev/null
+    sudo modprobe uvcvideo &>/dev/null
+    echo -e "${GREEN}[✓] System restored successfully.${NC}"
+    exit 0
+}
+
+trap cleanup SIGINT SIGTERM
+
+show_banner() {
+    clear
+    echo -e "${CYAN}=======================================${NC}"
+    echo -e "${CYAN}      CamFlow for Omarchy Linux        ${NC}"
+    echo -e "${BLUE}   Making your Pixel a Pro Webcam      ${NC}"
+    echo -e "${CYAN}=======================================${NC}"
+}
+
+show_options_help() {
+    echo -e "${BOLD}Available Quick Flags:${NC}"
+    echo -e "  ${CYAN}--on${NC}      : Default (720p @ 30fps)"
+    echo -e "  ${CYAN}--1080p${NC}   : Full HD @ 30fps"
+    echo -e "  ${CYAN}--60fps${NC}   : HD @ 60fps"
+    echo -e "  ${CYAN}--full${NC}    : Full HD @ 60fps (Pro Mode)"
+    echo -e "  ${CYAN}--off${NC}     : Manual Driver Reset"
+    echo -e "${CYAN}---------------------------------------${NC}"
+}
+
+detect_device() {
+    DEV_PATH=$(v4l2-ctl --list-devices | grep -A 1 -E "Pixel|Android" | grep "/dev/video" | awk '{print $1}' | head -n 1)
+    if [ -z "$DEV_PATH" ]; then
+        DEV_PATH=$(v4l2-ctl --list-devices | grep -A 1 -E "Capture|Video Capture" | grep "/dev/video" | awk '{print $1}' | head -n 1)
+    fi
+    if [ -z "$DEV_PATH" ]; then
+        echo -e "${YELLOW}[!] Auto-detection failed.${NC}"
+        devices=($(v4l2-ctl --list-devices | grep "/dev/video" | grep -v "loopback" | awk '{print $1}'))
+        if [ ${#devices[@]} -eq 0 ]; then
+            echo -e "${RED}[!] No video devices detected.${NC}"
+            exit 1
+        fi
+        echo -e "${BLUE}[*] Please select a device manually:${NC}"
+        for i in "${!devices[@]}"; do
+            echo -e "  [$i] ${devices[$i]}"
+        done
+        read -p "Selection [0-$((${#devices[@]}-1))]: " selection
+        DEV_PATH=${devices[$selection]}
+    fi
+}
+
+start_bridge() {
+    local res=$1
+    local fps=$2
+
+    echo -e "${BLUE}[*] Setting up virtual environment...${NC}"
+    sudo modprobe -r uvcvideo v4l2loopback &>/dev/null
+    sudo modprobe v4l2loopback exclusive_caps=1 card_label="CamFlow_Virtual" video_nr=0
+    sudo modprobe uvcvideo &>/dev/null
+    
+    sleep 1.5
+    detect_device
+    
+    show_banner
+    echo -e "${GREEN}[✓] Bridge Established!${NC}"
+    echo -e "${BOLD}Source:${NC} $DEV_PATH"
+    echo -e "${BOLD}Active:${NC} $res @ $fps FPS"
+    echo -e "${CYAN}---------------------------------------${NC}"
+    show_options_help
+    echo -e "${YELLOW}${BOLD}>> TO EXIT: Press [CTRL+C] or close window <<${NC}"
+    echo -e "${CYAN}---------------------------------------${NC}"
+
+    ffmpeg -hide_banner -loglevel error \
+    -fflags nobuffer -flags low_delay \
+    -f v4l2 -input_format mjpeg -video_size "$res" -framerate "$fps" -i "$DEV_PATH" \
+    -vcodec copy -f v4l2 -preset ultrafast -tune zerolatency "$VIRTUAL_DEVICE"
+}
+
+case "$1" in
+    --off) cleanup ;;
+    --1080p) show_banner; start_bridge "1920x1080" "30" ;;
+    --60fps) show_banner; start_bridge "1280x720" "60" ;;
+    --full)  show_banner; start_bridge "1920x1080" "60" ;;
+    --on|*) show_banner; start_bridge "$DEFAULT_RES" "$DEFAULT_FPS" ;;
+esac
